@@ -11,6 +11,7 @@
 #-------------------------------------------------------------------------------
 
 from gameflow import GameFlow
+
 background_image_filename = r'image/Go.jpg'
 black_image_filename = r'image/Black.png'
 white_image_filename = r'image/White.png'
@@ -28,7 +29,7 @@ pygame.init()
 
 screen = pygame.display.set_mode((650, 406), 0, 32)
 #创建了一个窗口
-pygame.display.set_caption("Hello, World!")
+pygame.display.set_caption("pythonGo")
 #设置窗口标题
 
 background = pygame.image.load(background_image_filename).convert()
@@ -38,7 +39,7 @@ white_stone = pygame.image.load(white_image_filename).convert_alpha()
 
 flow = GameFlow(black_stone, white_stone)
 mouse_cursor = flow.get_mouse_cursor()
-font = pygame.font.SysFont("simsunnsimsun", 40)
+font = pygame.font.SysFont("testfront.ttf", 40)
 
 while True:
 #游戏主循环
