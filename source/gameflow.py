@@ -12,19 +12,29 @@
 
 from chessboard import Chessboard
 from neural import Neural
+
 BLACK_PLAYER = 1
 WHITE_PLAYER = 2
+
 class GameFlow(object):
     """description of class"""
     def __init__(self, black_stone_img, white_stone_img):
+        #初始化棋盘
         self.chessboard = Chessboard()
+        #初始化神经网络
+        #TODO:神经网络还要改
         self.neural = Neural(19, 19)
+        #初始化先手棋子
         self.player = BLACK_PLAYER
+        #黑白棋棋子图片
         self.black_stone_img = black_stone_img
         self.white_stone_img = white_stone_img
+        #初始化赢家
         self.winner = None
+        #初始化胜利后的标题
         self.win_text_surface = None
 
+    #重置
     def reset(self):
         self.chessboard.reset()
         self.neural.reset()
@@ -32,6 +42,7 @@ class GameFlow(object):
         self.winner = None
         self.win_text_surface = None
 
+    #换手
     def _change_player(self):
         if self.player == BLACK_PLAYER:
             self.player = WHITE_PLAYER
@@ -41,6 +52,8 @@ class GameFlow(object):
             assert(False)
             self.player = BLACK_PLAYER
 
+    #获取当前执手玩家姓名
+    #TODO:当前用black和white代替
     def get_player_name(self):
         if self.player == BLACK_PLAYER:
             return 'Black'
@@ -49,11 +62,13 @@ class GameFlow(object):
         else:
             return 'Unknown'
 
+    #判断是否赢了
     def _is_win(self, x, y):
         for dir in range(1,5):
             if self.neural.get_connected_count(x,y,dir) >= 5:
                 return True
         return False
+
 
     def update(self, pos):
         px, py = pos
@@ -76,7 +91,7 @@ class GameFlow(object):
                 self.win_text_surface = self.chessboard.font.render(msg, True, (0,0,0), (255, 255, 255))
             self._change_player()
 
-
+    #获取当前执手方图片
     def _get_img(self, player):
         if player == BLACK_PLAYER:
             return self.black_stone_img
@@ -86,9 +101,11 @@ class GameFlow(object):
             assert(False)
             return None
 
+    #当前鼠标控制方图片
     def get_mouse_cursor(self):
         return self._get_img(self.player)
 
+    #在棋盘上画上棋子
     def draw(self, screen):
         for w in range(self.neural.width):
             for h in range(self.neural.height):
@@ -105,4 +122,5 @@ class GameFlow(object):
                 #计算光标的左上角位置
                 screen.blit(play_img, (x, y))
 
+        #每次都需要重新绘制reset按钮
         self.chessboard.draw(screen)
