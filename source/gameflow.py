@@ -1,4 +1,15 @@
 # encoding:utf-8
+#-------------------------------------------------------------------------------
+# Name:        gameflow.py
+# Purpose:
+#
+# Author:      daniyuu
+#
+# Created:     03/02/2015
+# Copyright:   (c) daniyuu 2015
+# Licence:     <your licence>
+#-------------------------------------------------------------------------------
+
 from chessboard import Chessboard
 from neural import Neural
 BLACK_PLAYER = 1
@@ -29,7 +40,7 @@ class GameFlow(object):
         else:
             assert(False)
             self.player = BLACK_PLAYER
-            
+
     def get_player_name(self):
         if self.player == BLACK_PLAYER:
             return 'Black'
@@ -43,7 +54,7 @@ class GameFlow(object):
             if self.neural.get_connected_count(x,y,dir) >= 5:
                 return True
         return False
-        
+
     def update(self, pos):
         px, py = pos
         # update button
@@ -64,7 +75,7 @@ class GameFlow(object):
                 msg = u'%s is winner!' % self.get_player_name()
                 self.win_text_surface = self.chessboard.font.render(msg, True, (0,0,0), (255, 255, 255))
             self._change_player()
-        
+
 
     def _get_img(self, player):
         if player == BLACK_PLAYER:
@@ -74,7 +85,7 @@ class GameFlow(object):
         else:
             assert(False)
             return None
-        
+
     def get_mouse_cursor(self):
         return self._get_img(self.player)
 
