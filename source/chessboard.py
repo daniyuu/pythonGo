@@ -84,8 +84,8 @@ class Chessboard(object):
     #TODO:函数意义不明
     def get_pos(self, ix, iy):
         #判断合法性
-        print "ix == " + str(ix)
-        print "iy == " + str(iy)
+        #print "ix == " + str(ix)
+        #print "iy == " + str(iy)
         if ix >= GRID_SIZE or iy >= GRID_SIZE:
             return None,None
 

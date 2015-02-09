@@ -82,6 +82,7 @@ class GameFlow(object):
         if self.winner:
             return
         ix, iy = self.chessboard.get_stone_index(px, py)
+
         if ix is None or iy is None:
             return
         if self.neural.set_value(ix, iy, self.player):
@@ -90,6 +91,19 @@ class GameFlow(object):
                 msg = u'%s is winner!' % self.get_player_name()
                 self.win_text_surface = self.chessboard.font.render(msg, True, (0,0,0), (255, 255, 255))
             self._change_player()
+
+
+    def play_move(self, ix, iy):
+        if ix is None or iy is None:
+            return
+        if self.neural.set_value(ix, iy, self.player):
+            if self._is_win(ix, iy):
+                self.winner = self.player
+                msg = u'%s is winner!' % self.get_player_name()
+                self.win_text_surface = self.chessboard.font.render(msg, True, (0,0,0), (255, 255, 255))
+            self._change_player()
+
+
 
     #获取当前执手方图片
     def _get_img(self, player):
