@@ -1,28 +1,10 @@
 #!/usr/bin/python
 # -*- coding: cp936 -*-
 
-#----------------------------------------------------------------------------------
-#    2005年5月1日，我在网上东逛西逛的，无意中看到一个用VC编写的五子棋程序，虽然该五子棋
-#智能不高，但作为新手们学习VC的代码例子还是可以的。
-#    刚好我也正想为中国的Python和wxPython社区作点贡献，就想到如果把该VC源码转为Python+
-#wxPython的源码，对Python的Fans们多多少少都有点好处的……
-#    说到做到，我开始了源码的转译工作。原来那份VC代码的变量定义不是很规范，我也顺便整理
-#了一下。
-#    2005年5月4日，整理完毕了。但发现在智能运算时的Python的处理非常慢，而相同逻辑的运算
-#用VC实现却非常快，这点我也很郁闷，我个人认为有可能是编译语言和解释语言所造成的区别。如
-#果哪位朋友有兴趣，也可以研究一下原因。得了结果，别忘了告诉我喔！我的联系方法是：
-#
-#                      Email: jawbreaker@163.com
-#                       popo: jawbreaker@163.com
-#                         UC: 1087729122
-#                                                                 jawbreaker
-#                                                                 2005年5月4日
-#----------------------------------------------------------------------------------
 import wx
 from Defines import *
 import os
 import  time
-
 
 class DragShape:
     def __init__(self, bmp):
@@ -81,9 +63,9 @@ class MainWindow(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnExit, id=ID_EXIT)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_DOWN, self.OnLButtonDown)
-        
+
         self.Show(1)
-    
+
     def BuildMenu(self) :
         #---------------------------------------------------------------------------
         #编排一个"游戏"单列菜单的所有项目
@@ -96,12 +78,12 @@ class MainWindow(wx.Frame):
                 j = j - 1
             else :
                 FileMenu.Append(ID_NEW+i+j,Item[0],Item[1])
-               
+
         #增加一个能包含整列菜单的菜单栏
         menuBar = wx.MenuBar()
         menuBar.Append(FileMenu,"游戏")
         self.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
-        
+
         #---------------------------------------------------------------------------
         #编排一个单列"帮助"菜单的所有项目
         ToolMenu = wx.Menu()#建立"帮助"菜单项
@@ -113,12 +95,21 @@ class MainWindow(wx.Frame):
                 j = j - 1
             else :
                 ToolMenu.Append(ID_HELP_ABOUT+i+j,Item[0],Item[1])
-               
+
         #增加一个能包含整列菜单的菜单栏
         menuBar.Append(ToolMenu,"帮助") # 增加一个"帮助"菜单到菜单栏
         self.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
-        
+
     def InitValues(self) :
+        #------------------cyy---------------------
+        self.board = [0 for x in range(15*15)]                 #棋盘状态
+        self.last_move_pos = (-1,-1)    #上一步的位置
+        self.strings = [0 for x in range(15*15)]               #存储棋盘上的棋串 i->index
+        self.string_color = [0 for x in range(15*15)]          #棋串颜色
+        self.string_num = [0 for x in range(15*15)]            #棋串上棋子的个数
+        self.string_index = [-1 for x in range(15*15)]          #棋串的Index
+
+        #------------------cyy---------------------
         self.m_PpLastPos = (-1,-1)      #玩家走的前一步棋
         self.m_PcLastPos = (-1,-1)      #计算机走的前一步棋
         self.m_bWhoFirst = False        #谁先走，1为电脑先走，0为玩家先走
@@ -126,18 +117,18 @@ class MainWindow(wx.Frame):
         self.m_bPlayerWin = False       #判断是否玩家赢
         self.m_bComputerWin = False     #判断是否计算机赢
         self.m_bCTable = []             #棋盘状态记录，原代码中是一个三维数组[15][15][572]
-        self.m_iWin = []                #原代码中是一个二维数组[2][572] 
+        self.m_iWin = []                #原代码中是一个二维数组[2][572]
         self.m_bPTable = []             #原代码中是一个三维数组[15][15][572]
-        self.m_bStart = True            #记录是否轮到玩家
-        self.m_bPlayer = False          #记录是否轮到计算机
-        self.m_bComputer = False
+        self.m_bStart = True            #记录是否开始
+        self.m_bPlayer = False          #记录是否轮到玩家
+        self.m_bComputer = False        #记录是否轮到计算机
         self.m_iBoard = []
-        self.m_BmpBoard = wx.Bitmap('res/board.bmp')
-        self.m_Bmplastwhitechess = wx.Bitmap('res/lastwhite.bmp')
-        self.m_Bmplastblackchess = wx.Bitmap('res/lastblack.bmp')
+        self.m_BmpBoard = wx.Bitmap('res/board.bmp')                #棋盘背景
+        self.m_Bmplastwhitechess = wx.Bitmap('res/lastwhite.bmp')   #白色落子图片
+        self.m_Bmplastblackchess = wx.Bitmap('res/lastblack.bmp')   #黑色落子图片
         self.m_Bmpblack = wx.Bitmap('res/black.bmp')
-        self.m_Bmpwhitechess = wx.Bitmap('res/whitechess.bmp')
-        self.m_Bmpblackchess = wx.Bitmap('res/blackchess.bmp')
+        self.m_Bmpwhitechess = wx.Bitmap('res/whitechess.bmp')      #白色执手图片
+        self.m_Bmpblackchess = wx.Bitmap('res/blackchess.bmp')      #黑色执手图片
         #----------------------------------------------------------------
         #判断哪方先开始
         if self.m_bWhoFirst :
@@ -187,7 +178,7 @@ class MainWindow(wx.Frame):
                     k+=1
                 count += 1
                 j-=1
-        
+
     def OnLButtonDown(self,event) :
         if self.m_bPlayer and event.m_x <= 535 and event.m_y <= 535 :     #判断是否在有效区域
             tx=x=event.m_x-24
@@ -230,7 +221,7 @@ class MainWindow(wx.Frame):
                     i+=1
                 self.m_bPlayer = False
                 self.m_bComputer = True
-        
+
     def OnPaint(self, event):
         dc = wx.PaintDC(self)
         self.TileBackground(dc)
@@ -247,7 +238,7 @@ class MainWindow(wx.Frame):
                         self.DrawWhiteChess(i,j)
                     else :
                         self.DrawBlackChess(i,j)
-                    
+
                 if self.m_iBoard[i][j] == 1 :#计算机的棋子
                     if self.m_PcLastPos[0] == i and self.m_PcLastPos[1] == j :
                         if not self.m_bWhoFirst :
@@ -255,12 +246,12 @@ class MainWindow(wx.Frame):
                         else :
                             self.DrawNowWhite(self.m_PcLastPos[0],self.m_PcLastPos[1])
                         continue
-    
+
                     if not self.m_bWhoFirst :
                         self.DrawBlackChess(i,j);
                     else :
                         self.DrawWhiteChess(i,j);
-        
+
     def TileBackground(self, dc):
         sz = self.GetClientSize()
         w = self.m_BmpBoard.GetWidth()
@@ -285,7 +276,7 @@ class MainWindow(wx.Frame):
             if self.m_iWin[1][i] == 5 :
                 self.m_bComputer = True
                 break
-        
+
     def Notify(self):
         self.IsWin()
         if self.m_bPlayerWin :
@@ -307,7 +298,7 @@ class MainWindow(wx.Frame):
         else :
             if self.m_bComputer :
                 self.ComTurn()
-    
+
     def SearchBlank(self,Nowboard,List=None) :
         for x in range(15):
             for y in range(15):
@@ -316,7 +307,7 @@ class MainWindow(wx.Frame):
                     List[1] = y
                     return 1
         return 0
-        
+
     def ComTurn(self) :
         temp1 = [-1]*20
         temp2 = [-1]*20
@@ -382,7 +373,7 @@ class MainWindow(wx.Frame):
                 self.DrawBlackChess(self.m_PcLastPos[0],self.m_PcLastPos[1])
             else :
                 self.DrawWhiteChess(self.m_PcLastPos[0],self.m_PcLastPos[1])
-    
+
         if not self.m_bWhoFirst :
             self.DrawNowBlack(bestx,besty)
         else :
@@ -421,31 +412,31 @@ class MainWindow(wx.Frame):
                     elif self.m_iWin[0][i] == 4 :
                         score-=5000
         return score
-        
+
     def DrawNowWhite(self,x,y,dc=None) :
         if dc == None :
-            dc = wx.ClientDC(self)  
-        
+            dc = wx.ClientDC(self)
+
         memDC = wx.MemoryDC()
         memDC.SelectObject(self.m_Bmpblack)
         dc.Blit(24+x*36-x-18,25+y*36-y-18,33,33,memDC, 0, 0, wx.OR_INVERT, True)
         memDC.SelectObject(self.m_Bmplastwhitechess)
         dc.Blit(24+x*36-x-18,25+y*36-y-18,33,33,memDC, 0, 0, wx.AND, True)
-        
+
     def DrawNowBlack(self,x,y,dc=None) :
         if dc == None :
-            dc = wx.ClientDC(self)  
-        
+            dc = wx.ClientDC(self)
+
         memDC = wx.MemoryDC()
         memDC.SelectObject(self.m_Bmpblack)
         dc.Blit(24+x*36-x-18,25+y*36-y-18,33,33,memDC, 0, 0, wx.OR_INVERT, True)
         memDC.SelectObject(self.m_Bmplastblackchess)
         dc.Blit(24+x*36-x-18,25+y*36-y-18,33,33,memDC, 0, 0, wx.AND, True)
-        
+
     def DrawWhiteChess(self,x,y,dc=None) :
         if dc == None :
-            dc = wx.ClientDC(self)  
-        
+            dc = wx.ClientDC(self)
+
         memDC = wx.MemoryDC()
         memDC.SelectObject(self.m_Bmpblack)
         dc.Blit(24+x*36-x-18,25+y*36-y-18,33,33,memDC, 0, 0, wx.OR_INVERT, True)
@@ -454,14 +445,14 @@ class MainWindow(wx.Frame):
 
     def DrawBlackChess(self,x,y,dc=None) :
         if dc == None :
-            dc = wx.ClientDC(self)  
-        
+            dc = wx.ClientDC(self)
+
         memDC = wx.MemoryDC()
         memDC.SelectObject(self.m_Bmpblack)
         dc.Blit(24+x*36-x-18,25+y*36-y-18,33,33,memDC, 0, 0, wx.OR_INVERT, True)
         memDC.SelectObject(self.m_Bmpblackchess)
         dc.Blit(24+x*36-x-18,25+y*36-y-18,33,33,memDC, 0, 0, wx.AND, True)
-    
+
     def OnNew(self,e):
         self.InitValues()
         self.Refresh()
@@ -474,7 +465,7 @@ class MainWindow(wx.Frame):
 
     def OnExit(self,e):
         self.Close()  # Close the frame.
-      
+
 #---------------------------------------------------------------------------
 
 
